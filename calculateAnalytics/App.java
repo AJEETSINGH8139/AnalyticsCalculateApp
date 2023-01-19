@@ -27,33 +27,53 @@ public class App {
 			System.out.println("Enter 4 for get data of Day of the week when the calls are longest.");
 			
 			int num = s.nextInt();
+			String str = "AM";
+			Integer n;
 			
 			if(num==1) {
-				resultSet=statement.executeQuery("select MAX(Hour(Start_time)) from calldetails Group by Start_time order by count(Hour(Start_time)) limit 1 ");
+				resultSet=statement.executeQuery("Select hr from (SELECT Hour(Start_time) as hr, COUNT(hour(Start_time)) AS CountOftime\r\n"
+						+ "FROM calldetails\r\n"
+						+ "GROUP BY Hour(Start_time) ORDER BY CountOftime DESC) a\r\n"
+						+ "LIMIT 1;");
 				while(resultSet.next()) {
-					System.out.println(resultSet.getInt(1));
-//					System.out.println(resultSet.getInt(1));
+					n = Integer.valueOf(resultSet.getInt(1))+1;
+					if(n-1 >= 12) {
+						str = "PM";
+					}
+					System.out.println("Hour of the day when the call volume is highest is "+resultSet.getInt(1)+" - "+n+" "+str);
 				}
 			}
 			else if(num==2) {
-				resultSet=statement.executeQuery("select Hour(Start_time) from calldetails where Start_time = (Select SUM(Duration) from calldetails)");
+				resultSet=statement.executeQuery("Select hr from (SELECT Hour(Start_time) as hr, sum(Duration) AS CountOftime\r\n"
+						+ "FROM calldetails\r\n"
+						+ "GROUP BY Hour(Start_time) ORDER BY CountOftime DESC) a\r\n"
+						+ "LIMIT 1;");
 				while(resultSet.next()) {
-					System.out.println(resultSet.getInt(1));
-//					System.out.println(resultSet.getInt(1));
+					n = Integer.valueOf(resultSet.getInt(1))+1;
+					if(n-1 >= 12) {
+						str = "PM";
+					}
+					System.out.println("Hour of the day when the calls are longest is "+resultSet.getInt(1)+" - "+n+" "+str);
 				}
 			}
 			else if(num==3) {
-				resultSet=statement.executeQuery("select Hour(Start_time) from calldetails where Start_time = (Select MAX(Start_time) from calldetails)");
+				resultSet=statement.executeQuery("Select DAYNAME(day) from (SELECT Date(Start_time) as day, count(Date(Start_time)) AS CountOftime\r\n"
+						+ "FROM calldetails\r\n"
+						+ "GROUP BY Date(Start_time) ORDER BY CountOftime DESC) a\r\n"
+						+ "LIMIT 1;");
 				while(resultSet.next()) {
-					System.out.println(resultSet.getInt(1));
-//					System.out.println(resultSet.getInt(1));
+					
+					System.out.println(resultSet.getString(1)+" is the day of the week when the call volume highest.");
 				}
 			}
 			else if(num==4) {
-				resultSet=statement.executeQuery("select Hour(Start_time) from calldetails where Start_time = (Select MAX(Start_time) from calldetails)");
-				while(resultSet.next()) {
-					System.out.println(resultSet.getInt(1));
-//					System.out.println(resultSet.getInt(1));
+				resultSet=statement.executeQuery("Select DAYNAME(day) from (SELECT Date(Start_time) as day, sum(Duration) AS CountOftime\r\n"
+						+ "FROM calldetails\r\n"
+						+ "GROUP BY Date(Start_time) ORDER BY CountOftime DESC) a\r\n"
+						+ "LIMIT 1;");
+                while(resultSet.next()) {
+					
+					System.out.println(resultSet.getString(1)+" is the day of the week when the calls are longest.");
 				}
 			}
 			else {
